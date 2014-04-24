@@ -8,6 +8,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from bok_choy.page_object import PageObject
 from bok_choy.promise import EmptyPromise, Promise
 from bok_choy.javascript import wait_for_js, js_defined
+from .video_grade_mixin import VideoGradeMixin
 
 
 VIDEO_BUTTONS = {
@@ -17,7 +18,8 @@ VIDEO_BUTTONS = {
     'pause': '.video_control.pause',
     'fullscreen': '.add-fullscreen',
     'download_transcript': '.video-tracks > a',
-    'speed': '.speeds'
+    'speed': '.speeds',
+    'download_video': '.video-download-button',
 }
 
 CSS_CLASS_NAMES = {
@@ -33,24 +35,24 @@ CSS_CLASS_NAMES = {
     'video_init': '.is-initialized',
     'video_time': 'div.vidtime',
     'video_display_name': '.vert h2',
-    'captions_lang_list': '.langs-list li'
+    'captions_lang_list': '.langs-list li',
 }
 
 VIDEO_MODES = {
     'html5': 'div.video video',
-    'youtube': 'div.video iframe'
+    'youtube': 'div.video iframe',
 }
 
 VIDEO_MENUS = {
     'language': '.lang .menu',
     'speed': '.speed .menu',
     'download_transcript': '.video-tracks .a11y-menu-list',
-    'transcript-format': '.video-tracks .a11y-menu-button'
+    'transcript-format': '.video-tracks .a11y-menu-button',
 }
 
 
 @js_defined('window.Video', 'window.RequireJS.require', 'window.jQuery')
-class VideoPage(PageObject):
+class VideoPage(PageObject, VideoGradeMixin):
     """
     Video player in the courseware.
     """
@@ -83,6 +85,18 @@ class VideoPage(PageObject):
             return self.q(css=element_selector).present
 
         EmptyPromise(_is_element_present, promise_desc, timeout=200).fulfill()
+
+    def _wait_for(self, check_func, desc, timeout=200):
+        """
+        Calls the method providedas an argument until the return value is not False.
+
+        Arguments:
+            check_func (callable): Function that accepts no arguments and returns a boolean indicating whether the promise is fulfilled.
+            desc (str): Description of the Promise, used in log messages.
+            timeout (float): Maximum number of seconds to wait for the Promise to be satisfied before timing out.
+
+        """
+        EmptyPromise(check_func, desc, timeout=timeout).fulfill()
 
     @wait_for_js
     def wait_for_video_class(self):
@@ -663,3 +677,98 @@ class VideoPage(PageObject):
         language_names = self.q(css=languages_selector).attrs('textContent')
 
         return dict(zip(language_codes, language_names))
+
+    def position(self, video_display_name=None):
+        """
+        Gets current video slider position.
+
+        Arguments:
+            video_display_name (str or None): Display name of a Video.
+
+        Returns:
+            str: current seek position in format min:sec.
+
+        """
+        selector = self.get_element_selector(video_display_name, CSS_CLASS_NAMES['video_time'])
+        current_seek_position = self.q(css=selector).text[0]
+        return current_seek_position.split('/')[0].strip()
+
+    def wait_for_position(self, position, video_display_name=None):
+        """
+        Wait until current will be equal `position`.
+
+        Arguments:
+            position (str): position we wait for.
+            video_display_name (str or None): Display name of a Video.
+
+        """
+        self._wait_for(
+            lambda: self.position(video_display_name) == position,
+            'Position is {position}'.format(position=position)
+        )
+
+    def state(self, video_display_name=None):
+        """
+        Extract the current state(play, pause etc) of video.
+
+        Arguments:
+            video_display_name (str or None): Display name of a Video.
+
+        Returns:
+            str: current video state
+
+        """
+        state_selector = self.get_element_selector(video_display_name, CSS_CLASS_NAMES['video_container'])
+        current_state = self.q(css=state_selector).attrs('class')[0]
+
+        if 'is-playing' in current_state:
+            return 'playing'
+        elif 'is-paused' in current_state:
+            return 'pause'
+        elif 'is-buffered' in current_state:
+            return 'buffering'
+        elif 'is-ended' in current_state:
+            return 'finished'
+
+    def wait_for_state(self, state, video_display_name=None):
+        """
+        Wait until `state` occurs.
+
+        Arguments:
+            state (str): state we wait for.
+            video_display_name (str or None): Display name of a Video.
+
+        """
+        self._wait_for(
+            lambda: self.state(video_display_name) == state,
+            'State is {state}'.format(state=state)
+        )
+
+    def _parse_time_str(self, time_str):
+        """
+        Parse a string of the form 1:23 into seconds (int).
+
+        Arguments:
+            time_str (str): seek value
+
+        Returns:
+            int: seek value in seconds
+
+        """
+        time_obj = time.strptime(time_str, '%M:%S')
+        return time_obj.tm_min * 60 + time_obj.tm_sec
+
+    def seek(self, seek_value, video_display_name=None):
+        """
+        Seek the video to position specified by `seek_value`.
+
+        Arguments:
+            seek_value (str): seek value
+            video_display_name (str or None): Display name of a Video.
+
+        """
+        seek_time = self._parse_time_str(seek_value)
+        seek_selector = self.get_element_selector(video_display_name, ' .video')
+        js_code = "$('{seek_selector}').data('video-player-state').videoPlayer.onSlideSeek({{time: {seek_time}}})".format(
+            seek_selector=seek_selector, seek_time=seek_time)
+        self.browser.execute_script(js_code)

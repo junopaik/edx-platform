@@ -5,7 +5,9 @@ These are notable changes in edx-platform.  This is a rolling list of changes,
 in roughly chronological order, most recent first.  Add your entries at or near
 the top.  Include a label indicating the component affected.
 
-Blades: Fix displaying transcripts on touch devices. BLD-1033.
+Blades: Add video player grading. BLD-1020.
+
+Blades: Fix transcripts displaying on touch devices. BLD-1033.
 
 Blades: Tolerance expressed in percentage now computes correctly. BLD-522.
 

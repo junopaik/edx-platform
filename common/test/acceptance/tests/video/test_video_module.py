@@ -3,16 +3,16 @@
 """
 Acceptance tests for Video.
 """
-
 import json
 import requests
-from .helpers import UniqueCourseTest
-from ..pages.lms.video import VideoPage
-from ..pages.lms.tab_nav import TabNavPage
-from ..pages.lms.course_nav import CourseNavPage
-from ..pages.lms.auto_auth import AutoAuthPage
-from ..pages.lms.course_info import CourseInfoPage
-from ..fixtures.course import CourseFixture, XBlockFixtureDesc
+
+from ..helpers import UniqueCourseTest
+from ...pages.lms.video.video import VideoPage
+from ...pages.lms.tab_nav import TabNavPage
+from ...pages.lms.course_nav import CourseNavPage
+from ...pages.lms.auto_auth import AutoAuthPage
+from ...pages.lms.course_info import CourseInfoPage
+from ...fixtures.course import CourseFixture, XBlockFixtureDesc
 from box.test.flaky import flaky
 
 VIDEO_SOURCE_PORT = 8777
@@ -132,7 +132,6 @@ class VideoBaseTest(UniqueCourseTest):
     def _navigate_to_courseware_video(self):
         """ Register for the course and navigate to the video unit """
         AutoAuthPage(self.browser, course_id=self.course_id).visit()
-
         self.course_info_page.visit()
         self.tab_nav.go_to_tab('Courseware')
 
