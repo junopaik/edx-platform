@@ -160,8 +160,8 @@ def _has_access_course_desc(user, action, course):
         start = course.enrollment_start
         end = course.enrollment_end
 
-        if reg_method_ok and (start is None or now > start) and (end is None or now < end):
-            # in enrollment period, so any user is allowed to enroll.
+        if reg_method_ok and (start is None or now > start) and (end is None or now < end) and not course.invitation_only:
+            # in enrollment period and not invitation only so any user is allowed to enroll.
             debug("Allow: in enrollment period")
             return True
 
