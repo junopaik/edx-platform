@@ -58,7 +58,7 @@ def get_course(course_id, depth=0):
 # TODO please rename this function to get_course_by_key at next opportunity!
 def get_course_by_id(course_key, depth=0):
     """
-    Given a course id, return the corresponding course descriptor.
+    Given a course key, return the corresponding course descriptor.
 
     If such a course does not exist, raises a 404.
 
@@ -68,6 +68,7 @@ def get_course_by_id(course_key, depth=0):
     if course:
         return course
     else:
+        log.info("Could not find course with key %s of type %s", course_key, type(course_key))
         raise Http404("Course not found.")
 
 

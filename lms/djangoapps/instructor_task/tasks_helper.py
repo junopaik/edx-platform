@@ -512,6 +512,7 @@ def push_grades_to_s3(_xmodule_instance_args, _entry_id, course_id, _task_input,
     header = None
     rows = []
     err_rows = [["id", "username", "error_msg"]]
+    TASK_LOG.info("Iterating grades for course %s (type %s)", course_id, type(course_id))
     for student, gradeset, err_msg in iterate_grades_for(course_id, enrolled_students):
         # Periodically update task status (this is a cache write)
         if num_attempted % status_interval == 0:
