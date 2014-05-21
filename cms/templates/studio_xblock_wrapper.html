@@ -1,6 +1,6 @@
 <%!
 from django.utils.translation import ugettext as _
-from contentstore.views.helpers import xblock_studio_url, xblock_has_studio_page
+from contentstore.views.helpers import xblock_studio_url
 %>
 
 <%
@@ -75,7 +75,7 @@ collapsible_class = "is-collapsible" if xblock.has_children else ""
         </ul>
     </div>
 % endif
-% if is_root or not xblock_has_studio_page(xblock):
+% if is_root or not xblock_url:
     <article class="xblock-render">
 ${content}
     </article>
