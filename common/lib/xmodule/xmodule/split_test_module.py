@@ -14,7 +14,7 @@ from xmodule.x_module import XModule, module_attr
 from lxml import etree
 
 from xblock.core import XBlock
-from xblock.fields import Scope, Integer, ReferenceValueDict
+from xblock.fields import Scope, Integer, String, ReferenceValueDict
 from xblock.fragment import Fragment
 
 log = logging.getLogger('edx.' + __name__)
@@ -23,6 +23,13 @@ log = logging.getLogger('edx.' + __name__)
 class SplitTestFields(object):
     """Fields needed for split test module"""
     has_children = True
+
+    display_name = String(
+        display_name="Display Name",
+        help="This name appears in the horizontal navigation at the top of the page.",
+        scope=Scope.settings,
+        default="Experiment Block"
+    )
 
     user_partition_id = Integer(
         help="Which user partition is used for this test",
