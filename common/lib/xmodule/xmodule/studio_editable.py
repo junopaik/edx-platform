@@ -8,7 +8,7 @@ class StudioEditableModule(object):
     Helper methods for supporting Studio editing of xblocks.
     """
 
-    def render_children(self, context, fragment, can_reorder=False, view_name='student_view'):
+    def render_children(self, context, fragment, can_reorder=False, can_add=False, view_name='student_view'):
         """
         Renders the children of the module with HTML appropriate for Studio. If can_reorder is True,
         then the children will be rendered to support drag and drop.
@@ -30,4 +30,5 @@ class StudioEditableModule(object):
         fragment.add_content(self.system.render_template("studio_render_children_view.html", {
             'items': contents,
             'xblock_context': context,
+            'can_add': can_add,
         }))

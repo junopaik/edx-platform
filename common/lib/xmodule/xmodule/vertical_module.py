@@ -30,7 +30,7 @@ class VerticalModule(VerticalFields, XModule, StudioEditableModule):
         Renders the Studio preview view, which supports drag and drop.
         """
         fragment = Fragment()
-        self.render_children(context, fragment, can_reorder=True)
+        self.render_children(context, fragment, can_reorder=True, can_add=True)
         return fragment
 
     def render_view(self, context, template_name):
