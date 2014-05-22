@@ -140,6 +140,10 @@ body.view-container .content-primary {
       }
 
       .xblock-header {
+        display: block;
+      }
+
+      .xblock-header-primary {
         @include ui-flexbox();
         margin-bottom: 0;
         border-bottom: none;
@@ -168,6 +172,10 @@ body.view-container .content-primary {
       }
 
       .xblock-header {
+        display: block;
+      }
+
+      .xblock-header-primary {
         display: flex;
         margin-bottom: 0;
         border-bottom: 1px solid $gray-l4;
@@ -183,7 +191,7 @@ body.view-container .content-primary {
       // STATE: xBlock containers styled as rows.
       &.xblock-type-container {
 
-        .xblock-header {
+        .xblock-header-primary {
           margin-bottom: 0;
           border-bottom: 0;
           border-radius: ($baseline/5);

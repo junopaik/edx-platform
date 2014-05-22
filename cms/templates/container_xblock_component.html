@@ -4,7 +4,7 @@ from contentstore.views.helpers import xblock_studio_url
 %>
 <%namespace name='static' file='static_content.html'/>
 
-<section class="wrapper wrapper-xblock wrapper-component-action-header" data-locator="${locator}" data-course-key="${xblock.location.course_key}">
+<section class="wrapper wrapper-xblock wrapper-component-action-header nopreview" data-locator="${locator}" data-course-key="${xblock.location.course_key}">
     <div class="component-header">
         ${xblock.display_name_with_default}
     </div>
@@ -28,7 +28,8 @@ from contentstore.views.helpers import xblock_studio_url
             </a>
         </li>
     </ul>
-    <div class="container-panel">
+    <div class="xblock-header-secondary">
+        <div class="meta-info"></div>
         <ul class="actions-list">
             <li class="action-item action-view">
                 <a href="${xblock_studio_url(xblock)}" class="action-button">
