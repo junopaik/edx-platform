@@ -1,4 +1,5 @@
 <%! from django.utils.translation import ugettext as _ %>
+<%! from django.core.urlresolvers import reverse %>
 
 <div class="wrapper-content-supplementary">
   <aside class="content-supplementary">
@@ -19,7 +20,7 @@
         %else:
            <h3 class="title">${_("Change your mind?")}</h3>
           <div class="copy">
-            <p>${_("You can always {a_start} audit the course for free {a_end} without verifying.").format(a_start='<a rel="external" href="/course_modes/choose/' + course_id + '">', a_end="</a>")}</p>
+            <p>${_("You can always {a_start} audit the course for free {a_end} without verifying.").format(a_start='<a rel="external" href="' + reverse('course_modes_choose', kwargs={'course_id': course_id}) + '">', a_end="</a>")}</p>
           </div>
         %endif
       </li>
