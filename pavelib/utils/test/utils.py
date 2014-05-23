@@ -4,6 +4,7 @@ Helper functions for test tasks
 import os
 from paver.easy import sh, task
 from pavelib.utils.envs import Env
+import errno
 
 __test__ = False  # do not collect
 

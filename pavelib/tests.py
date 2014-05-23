@@ -3,9 +3,9 @@ Unit test tasks
 """
 import os
 import sys
-from paver.easy import sh, task, cmdopts
-from pavelib import js_test
-from pavelib.utils.test import suite
+from paver.easy import sh, task, cmdopts, needs
+# from pavelib import js_test
+from pavelib.utils.test import suites as suite
 from pavelib.utils.test import utils as test_utils
 from pavelib.utils.envs import Env
 
@@ -20,17 +20,20 @@ for item in os.listdir('{}/common/lib'.format(Env.REPO_ROOT)):
 LIB_SUITES = [suite.LibTestSuite(d) for d in TEST_TASK_DIRS]
 SYSTEM_SUITES = [suite.SystemTestSuite('cms'), suite.SystemTestSuite('lms')]
 
-PYTHON_SUITE = suite.TestSuite('Python Tests', subsuites=SYSTEM_SUITES + LIB_SUITES)
+PYTHON_SUITE = suite.PythonTestSuite('Python Tests', subsuites=SYSTEM_SUITES + LIB_SUITES)
 I18N_SUITE = suite.I18nTestSuite('i18n')
 JS_SUITE = suite.JsTestSuite('JavaScript Tests')
 ALL_UNITTESTS_SUITE = suite.TestSuite('All Tests', subsuites=[PYTHON_SUITE, I18N_SUITE, JS_SUITE])
 
+
 @task
+@needs('pavelib.prereqs.install_prereqs')
 @cmdopts([
     ("system=", "s", "System to act on"),
     ("test_id=", "t", "Test id"),
     ("failed", "f", "Run only failed tests"),
     ("fail_fast", "x", "Run only failed tests"),
+    ("fasttest", "a", "Run without collectstatic")
 ])
 def test_system(options):
     """
@@ -40,12 +43,15 @@ def test_system(options):
     test_id = getattr(options, 'test_id', None)
     failed_only = getattr(options, 'failed', False)
     fail_fast = getattr(options, 'fail_fast', False)
+    fasttest = getattr(options, 'fasttest', False)
 
-    test_suite = suite.SystemTestSuite(system, failed_only=failed_only, fail_fast=fail_fast)
+    system_tests = suite.SystemTestSuite(system, failed_only=failed_only, fail_fast=fail_fast, fasttest=fasttest)
+    test_suite = suite.PythonTestSuite(system + ' python tests', subsuites =[system_tests])
     test_suite.run()
 
 
 @task
+@needs('pavelib.prereqs.install_prereqs')
 @cmdopts([
     ("lib=", "l", "lib to test"),
     ("test_id=", "t", "Test id"),
@@ -64,11 +70,13 @@ def test_lib(options):
     if not lib:
         raise Exception(test_utils.colorize('Missing required arg. Please specify --lib, -l', 'RED'))
 
-    test_suite = suite.LibTestSuite(lib, failed_only=failed_only, fail_fast=fail_fast)
+    lib_tests = suite.LibTestSuite(lib, options)
+    test_suite = suite.PythonTestSuite(lib+ ' python tests', subsuites =[lib_tests])
     test_suite.run()
 
 
 @task
+@needs('pavelib.prereqs.install_prereqs')
 def test_python():
     """
     Run all python tests
@@ -83,7 +91,9 @@ def test_i18n():
     """
     I18N_SUITE.run()
 
+
 @task
+@needs('pavelib.prereqs.install_prereqs')
 def test():
     """
     Run all tests
