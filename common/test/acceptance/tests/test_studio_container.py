@@ -7,7 +7,6 @@ from ..fixtures.course import CourseFixture, XBlockFixtureDesc
 
 from .helpers import UniqueCourseTest
 from ..pages.studio.component_editor import ComponentEditorView
-from unittest import skip
 
 
 class ContainerBase(UniqueCourseTest):
@@ -336,7 +335,6 @@ class EditContainerTest(ContainerBase):
         component = unit.components[0]
         self.modify_display_name_and_verify(component)
 
-    @skip("Refresh of display name does not yet work")
     def test_edit_container_on_container_page(self):
         """
         Test the "edit" button on a container appearing on the container page.
