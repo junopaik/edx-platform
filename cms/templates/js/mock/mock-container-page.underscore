@@ -12,6 +12,12 @@
             <nav class="nav-actions">
                 <h3 class="sr">Page Actions</h3>
                 <ul>
+                    <li class="action-item action-edit nav-item">
+                        <a href="#" class="button edit-button action-button">
+                            <i class="icon-pencil"></i>
+                            <span class="action-button-text">${_("Edit")}</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </header>

@@ -177,10 +177,9 @@ define(["jquery", "underscore", "gettext", "js/views/feedback_notification",
              */
             refreshXBlock: function(xblockElement) {
                 var parentElement = xblockElement.parent(),
-                    rootLocator = this.xblockView.model.id,
-                    xblockLocator = xblockElement.data('locator');
-                if (xblockLocator === rootLocator) {
-                    this.render();
+                    rootLocator = this.xblockView.model.id;
+                if (xblockElement.length === 0 || xblockElement.data('locator') === rootLocator) {
+                    this.render({ });
                 } else if (parentElement.hasClass('reorderable-container')) {
                     this.refreshChildXBlock(xblockElement);
                 } else {
