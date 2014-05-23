@@ -1192,7 +1192,6 @@ body.unit .component {
   .xblock-header-secondary {
     overflow: hidden;
     width: flex-grid(12, 12);
-    margin: ($baseline/4) (-$baseline/2) (-$baseline/4) (-$baseline/2);
     border-top: 1px solid $gray-l3;
     background-color: $gray-l5;
     padding: ($baseline/2);

@@ -30,7 +30,10 @@ class VerticalModule(VerticalFields, XModule, StudioEditableModule):
         Renders the Studio preview view, which supports drag and drop.
         """
         fragment = Fragment()
-        self.render_children(context, fragment, can_reorder=True, can_add=True)
+        # For the container page we want the full drag-and-drop, but for unit pages we want
+        # a more concise version that appears alongside the "View =>" link.
+        if context.get('container_view'):
+            self.render_children(context, fragment, can_reorder=True, can_add=True)
         return fragment
 
     def render_view(self, context, template_name):

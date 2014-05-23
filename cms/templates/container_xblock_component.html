@@ -28,17 +28,17 @@ from contentstore.views.helpers import xblock_studio_url
             </a>
         </li>
     </ul>
-    <div class="xblock-header-secondary">
-        <div class="meta-info"></div>
-        <ul class="actions-list">
-            <li class="action-item action-view">
-                <a href="${xblock_studio_url(xblock)}" class="action-button">
-                    ## Translators: this is a verb describing the action of viewing more details
-                    <span class="action-button-text">${_('View')}</span>
-                    <i class="icon-arrow-right"></i>
-                </a>
-            </li>
-        </ul>
-    </div>
-    <span data-tooltip="${_('Drag to reorder')}" class="drag-handle action"></span>
 </section>
+<div class="xblock-header-secondary">
+    <div class="meta-info">${_('This block contains multiple components.')}</div>
+    <ul class="actions-list">
+        <li class="action-item action-view">
+            <a href="${xblock_studio_url(xblock)}" class="action-button">
+                ## Translators: this is a verb describing the action of viewing more details
+                <span class="action-button-text">${_('View')}</span>
+                <i class="icon-arrow-right"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+<span data-tooltip="${_('Drag to reorder')}" class="drag-handle action"></span>

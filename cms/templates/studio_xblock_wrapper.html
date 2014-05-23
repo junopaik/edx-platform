@@ -65,7 +65,7 @@ collapsible_class = "is-collapsible" if xblock.has_children else ""
     </div>
     % if xblock_url and not is_root:
     <div class="xblock-header-secondary">
-        <div class="meta-info"></div>
+        <div class="meta-info">${_('This block contains multiple components.')}</div>
         <ul class="actions-list">
             <li class="action-item action-view">
                 <a href="${xblock_url}" class="action-button">
