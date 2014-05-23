@@ -7,6 +7,7 @@ define(["jquery", "underscore", "js/spec_helpers/create_sinon", "js/spec_helpers
                 model, containerPage, requests,
                 mockContainerPage = readFixtures('mock/mock-container-page.underscore'),
                 mockContainerXBlockHtml = readFixtures('mock/mock-container-xblock.underscore'),
+                mockUpdatedContainerXBlockHtml = readFixtures('mock/mock-updated-container-xblock.underscore'),
                 mockXBlockEditorHtml = readFixtures('mock/mock-xblock-editor.underscore');
 
             beforeEach(function () {
@@ -88,7 +89,8 @@ define(["jquery", "underscore", "js/spec_helpers/create_sinon", "js/spec_helpers
                 });
 
                 it('can edit itself', function() {
-                    var editButtons;
+                    var editButtons,
+                        updatedTitle = 'Updated Test Container';
                     renderContainerPage(mockContainerXBlockHtml, this);
 
                     // Click the root edit button
@@ -114,6 +116,14 @@ define(["jquery", "underscore", "js/spec_helpers/create_sinon", "js/spec_helpers
                     expect(lastRequest().url).toBe(
                         '/xblock/testCourse/branch/draft/block/verticalFFF/container_preview'
                     );
+                    create_sinon.respondWithJson(requests, {
+                        html: mockUpdatedContainerXBlockHtml,
+                        resources: []
+                    });
+
+                    // Expect the title and breadcrumb to be updated
+                    expect(containerPage.$('.page-header-title').text().trim()).toBe(updatedTitle);
+                    expect(containerPage.$('.page-header .subtitle a').last().text().trim()).toBe(updatedTitle);
                 });
             });
 
