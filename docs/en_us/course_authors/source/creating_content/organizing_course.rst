@@ -341,7 +341,7 @@ Click the arrow again to expand the component.
   the course and set up parent components in the course XML files outside of
   Studio. After you import the course into Studio, you can create and edit child
   components just as you can with any other component, if the containing unit is
-  Private or in draft.
+  private or in draft.
 
 See:
 
@@ -354,11 +354,11 @@ See:
 Add a Child Component
 ======================================
 
-If the unit is Private, or if you are editing a draft of the unit, you can add
-child components.
+If the containing unit is private or in draft, you can add a child component in its parent component.
 
-To add a child component, click the component type that you want under
-**Add New Component** within the container component.
+To add a child component, open and expand the parent component. Then click the
+component type that you want under **Add New Component** within the parent
+component.
 
 .. image:: ../Images/AddNewComponent.png
   :alt: Image of adding a new component
