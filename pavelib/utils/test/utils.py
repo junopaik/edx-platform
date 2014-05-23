@@ -1,33 +1,26 @@
 """
 Helper functions for test tasks
 """
-from paver.easy import sh, task
 import os
-import subprocess
-from pavelib.utils.process import kill_process
-from .envs import Env
+from paver.easy import sh, task
+from pavelib.utils.envs import Env
 
 __test__ = False  # do not collect
 
 
-def test_sh(cmd):
+def get_or_make_dir(directory_path):
     """
-    Runs a command in a subprocess and waits for it to finish
+    Ensure that a directory exists, and return its path
     """
-    kwargs = {'shell': True, 'cwd': None}
-    process = None
-
     try:
-        print cmd
-        process = subprocess.Popen(cmd, **kwargs)
-        process.communicate()
+        os.makedirs(directory_path)
+    except OSError as err:
+        if err.errno != errno.EEXIST:
+            # If we get an error other than one that says
+            # that the file already exists
+            raise
 
-    except KeyboardInterrupt:
-        kill_process(process)
-
-    else:
-        return
-
+    return directory_path
 
 @task
 def clean_test_files():
@@ -65,23 +58,6 @@ def clean_mongo():
     """
     sh("mongo {repo_root}/scripts/delete-mongo-test-dbs.js".format(repo_root=Env.REPO_ROOT))
 
-
-def check_for_required_dirs(lib):
-    """
-    Makes sure that the reports directory and the nodeids directory are present.
-    """
-    report_dir = os.path.join(Env.REPORT_DIR, lib)
-    if not os.path.exists(report_dir):
-        os.makedirs(report_dir)
-
-    test_id_dir = os.path.join(Env.TEST_DIR, lib)
-    if not os.path.exists(test_id_dir):
-        os.makedirs(test_id_dir)
-
-    # no need to create test_ids file, since nose will do that
-    test_ids = os.path.join(test_id_dir, 'noseids')
-
-    return report_dir, test_ids
 
 
 # For colorizing stdout/stderr

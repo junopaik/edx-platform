@@ -1,12 +1,13 @@
 """
 Unit test tasks
 """
-from paver.easy import sh, task, cmdopts, needs, call_task
 import os
 import sys
+from paver.easy import sh, task, cmdopts
 from pavelib import js_test
-from .utils import test_utils
-from .utils.envs import Env
+from pavelib.utils.test import suite
+from pavelib.utils.test import utils as test_utils
+from pavelib.utils.envs import Env
 
 __test__ = False  # do not collect
 
@@ -16,70 +17,15 @@ for item in os.listdir('{}/common/lib'.format(Env.REPO_ROOT)):
     if os.path.isdir(os.path.join('{}/common/lib'.format(Env.REPO_ROOT), item)):
         TEST_TASK_DIRS.append(os.path.join('common/lib', item))
 
+LIB_SUITES = [suite.LibTestSuite(d) for d in TEST_TASK_DIRS]
+SYSTEM_SUITES = [suite.SystemTestSuite('cms'), suite.SystemTestSuite('lms')]
 
-def run_under_coverage(cmd, root):
-    """
-    Returns the given command (str), reformatted to be run with coverage
-    """
-    cmd0, cmd_rest = cmd.split(" ", 1)
-    # We use "python -m coverage" so that the proper python will run the importable coverage
-    # rather than the coverage that OS path finds.
-
-    cmd = "python -m coverage run --rcfile={root}/.coveragerc `which {cmd0}` {cmd_rest}".format(
-        root=root, cmd0=cmd0, cmd_rest=cmd_rest)
-    return cmd
-
-
-def run_tests(system, test_id=None, failed_only=False, fail_fast=False):
-    """
-    Runs the tests for the 'lms' and 'cms' systems
-    """
-    # If no test id is provided, we need to limit the test runner
-    # to the Djangoapps we want to test.  Otherwise, it will
-    # run tests on all installed packages.
-
-    # We need to use $DIR/*, rather than just $DIR so that
-    # django-nose will import them early in the test process,
-    # thereby making sure that we load any django models that are
-    # only defined in test files.
-    default_test_id = "{system}/djangoapps/* common/djangoapps/*".format(system=system)
-
-    if system in ('lms', 'cms'):
-        default_test_id += " {system}/lib/*".format(system=system)
-
-    if system == 'lms':
-        default_test_id += " {system}/tests.py".format(system=system)
-
-    if not test_id:
-        test_id = default_test_id
-
-    # Handle "--failed" as a special case: we want to re-run only
-    # the tests that failed within our Django apps
-    # This sets the --failed flag for the nosetests command, so this
-    # functionality is the same as described in the nose documentation
-    if failed_only:
-        test_id = "{default_test_id} --failed".format(default_test_id=default_test_id)
-
-    # This makes it so we use nose's fail-fast feature in two cases.
-    # Case 1: --fail_fast is passed as an arg in the paver command
-    # Case 2: The environment variable TESTS_FAIL_FAST is set as True
-    if fail_fast or ('TESTS_FAIL_FAST' in os.environ and os.environ['TEST_FAIL_FAST']):
-        test_id = "{test_id} --stop".format(test_id=test_id)
-
-    cmd = './manage.py {system} test {test_id} --traceback --settings=test'.format(
-        system=system, test_id=test_id)
-
-    try:
-        test_utils.test_sh(run_under_coverage(cmd, system))
-    finally:
-        test_utils.clean_mongo()
-
+PYTHON_SUITE = suite.TestSuite('Python Tests', subsuites=SYSTEM_SUITES + LIB_SUITES)
+I18N_SUITE = suite.I18nTestSuite('i18n')
+JS_SUITE = suite.JsTestSuite('JavaScript Tests')
+ALL_UNITTESTS_SUITE = suite.TestSuite('All Tests', subsuites=[PYTHON_SUITE, I18N_SUITE, JS_SUITE])
 
 @task
-@needs([
-    'pavelib.utils.test_utils.clean_test_files',
-    'pavelib.prereqs.install_prereqs',
-])
 @cmdopts([
     ("system=", "s", "System to act on"),
     ("test_id=", "t", "Test id"),
@@ -91,45 +37,15 @@ def test_system(options):
     Run all django tests on our djangoapps for system
     """
     system = getattr(options, 'system', 'lms')
-
-    # TODO: Fix the tests so that collectstatic isn't needed
-    # add --skip-collect to this when the tests are fixed
-    args = [system, '--settings=test']
-    call_task('pavelib.assets.update_assets', args=args)
-
-    fasttest(options)
-
-
-@task
-@needs('pavelib.utils.test_utils.clean_reports_dir')
-@cmdopts([
-    ("system=", "s", "System to act on"),
-    ("test_id=", "t", "Test id"),
-])
-def fasttest(options):
-    """
-    Run the tests without running collectstatic
-    """
-    system = getattr(options, 'system', 'lms')
     test_id = getattr(options, 'test_id', None)
     failed_only = getattr(options, 'failed', False)
-    fail_fast = getattr(options, "fail_fast", False)
+    fail_fast = getattr(options, 'fail_fast', False)
 
-    msg = test_utils.colorize('\n{line}\n Running tests for {system} \n{line}\n'.format(system=system, line='=' * 40), 'GREEN')
-    sys.stdout.write(msg)
-    sys.stdout.flush()
-
-    test_utils.check_for_required_dirs(system)
-
-    run_tests(system, test_id, failed_only, fail_fast)
+    test_suite = suite.SystemTestSuite(system, failed_only=failed_only, fail_fast=fail_fast)
+    test_suite.run()
 
 
 @task
-@needs([
-    'pavelib.utils.test_utils.clean_test_files',
-    'pavelib.utils.test_utils.clean_reports_dir',
-    'pavelib.prereqs.install_prereqs',
-])
 @cmdopts([
     ("lib=", "l", "lib to test"),
     ("test_id=", "t", "Test id"),
@@ -138,75 +54,26 @@ def fasttest(options):
 ])
 def test_lib(options):
     """
-    Run tests for common lib
+    Run tests for common/lib/
     """
-
-    lib = getattr(options, 'lib', '')
+    lib = getattr(options, 'lib', None)
     test_id = getattr(options, 'test_id', lib)
     failed_only = getattr(options, 'failed', False)
-    fail_fast = getattr(options, "fail_fast", False)
+    fail_fast = getattr(options, 'fail_fast', False)
 
     if not lib:
         raise Exception(test_utils.colorize('Missing required arg. Please specify --lib, -l', 'RED'))
 
-    report_dir, test_ids = test_utils.check_for_required_dirs(lib)
-
-    if os.path.exists(os.path.join(report_dir, "nosetests.xml")):
-        os.environ['NOSE_XUNIT_FILE'] = os.path.join(report_dir, "nosetests.xml")
-
-    msg = test_utils.colorize('\n{line}\n Running tests for {lib} \n{line}\n\n'.format(lib=lib, line='=' * 40), 'GREEN')
-    sys.stdout.write(msg)
-    sys.stdout.flush()
-
-    # Handle "--failed" as a special case: we want to re-run only
-    # the tests that failed within our Django apps
-    # This sets the --failed flag for the nosetests command, so this
-    # functionality is the same as described in the nose documentation
-    if failed_only:
-        test_id = "{test_id} --failed".format(test_id=test_id)
-
-    # This makes it so we use nose's fail-fast feature in two cases.
-    # Case 1: --fail_fast is passed as an arg in the paver command
-    # Case 2: The environment variable TESTS_FAIL_FAST is set as True
-    if fail_fast or ('TESTS_FAIL_FAST' in os.environ and os.environ['TEST_FAIL_FAST']):
-        test_id = "{test_id} --stop".format(test_id=test_id)
-
-    cmd = "nosetests --id-file={test_ids} {test_id}".format(
-        test_ids=test_ids, test_id=test_id)
-
-    try:
-        test_utils.test_sh(run_under_coverage(cmd, lib))
-    finally:
-        test_utils.clean_mongo()
+    test_suite = suite.LibTestSuite(lib, failed_only=failed_only, fail_fast=fail_fast)
+    test_suite.run()
 
 
 @task
-@cmdopts([
-    ("lib=", "l", "lib to test"),
-])
-def fasttest_lib(options):
-    """
-    Run tests for common lib (aliased for backwards compatibility)"
-    Run all django tests on our djangoapps for system
-    """
-    test_lib(options)
-
-
-@task
-def test_python(options):
+def test_python():
     """
     Run all python tests
     """
-
-    setattr(options, 'system', 'cms')
-    test_system(options)
-
-    setattr(options, 'system', 'lms')
-    test_system(options)
-
-    for directory in TEST_TASK_DIRS:
-        setattr(options, 'lib', directory)
-        test_lib(options)
+    PYTHON_SUITE.run()
 
 
 @task
@@ -214,19 +81,14 @@ def test_i18n():
     """
     Run all i18n tests
     """
-    # TODO: update this when the i18n tasks are deprecated to paver
-    test_utils.test_sh("rake i18n:test")
-
+    I18N_SUITE.run()
 
 @task
-def test(options):
+def test():
     """
     Run all tests
     """
-    test_i18n()
-    test_python(options)
-    js_test.test_js_coverage()
-    call_task('pavelib.docs.build_docs')
+    ALL_UNITTESTS_SUITE.run(with_build_docs=True)
 
 
 @task
