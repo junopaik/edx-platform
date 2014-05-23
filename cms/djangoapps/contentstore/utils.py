@@ -54,13 +54,7 @@ def get_modulestore(category_or_location):
     """
     Returns the correct modulestore to use for modifying the specified location
     """
-    if isinstance(category_or_location, Location):
-        category_or_location = category_or_location.category
-
-    if category_or_location in DIRECT_ONLY_CATEGORIES:
-        return modulestore('direct')
-    else:
-        return modulestore()
+    return modulestore()
 
 
 def get_lms_link_for_item(location, preview=False):
