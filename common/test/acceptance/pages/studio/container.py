@@ -71,7 +71,7 @@ class ContainerPage(PageObject):
         action = ActionChains(self.browser)
         # When dragging before the target element, must take into account that the placeholder
         # will appear in the place where the target used to be.
-        placeholder_height = 40
+        placeholder_height = 45
         action.click_and_hold(source).move_to_element_with_offset(
             target, 0, placeholder_height
         ).release().perform()
