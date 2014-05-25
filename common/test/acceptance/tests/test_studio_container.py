@@ -1,7 +1,6 @@
 """
 Acceptance tests for Studio related to the container page.
 """
-from unittest import skip
 
 from ..pages.studio.auto_auth import AutoAuthPage
 from ..pages.studio.overview import CourseOutlinePage
@@ -138,7 +137,6 @@ class DragAndDropTest(ContainerBase):
             expected_ordering
         )
 
-    @skip("Intermittently failing")
     def test_reorder_in_group(self):
         """
         Drag Group A Item 2 before Group A Item 1.
