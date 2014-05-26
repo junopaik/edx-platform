@@ -201,13 +201,13 @@ define(["jquery", "underscore", "gettext", "js/views/modals/base_modal",
             },
 
             removeCheatsheetVisibility: function() {
-                var cheatsheet = $("article.simple-editor-open-ended-cheatsheet");
+                var cheatsheet = $('article.simple-editor-open-ended-cheatsheet');
                 if (cheatsheet.length === 0) {
                     cheatsheet = $('article.simple-editor-cheatsheet');
                 }
-                if (cheatsheet.hasClass("shown")) {
-                    cheatsheet.removeClass("shown");
-                    $(".modal-content").removeClass('cheatsheet-is-shown');
+                if (cheatsheet.hasClass('shown')) {
+                    cheatsheet.removeClass('shown');
+                    $('.modal-content').removeClass('cheatsheet-is-shown');
                 }
             }
         });

@@ -48,8 +48,8 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
   ###
   onShowXMLButton: (e) =>
     e.preventDefault();
-    if @cheatsheet != undefined && @cheatsheet.hasClass("shown")
-      @cheatsheet.toggleClass("shown")
+    if @cheatsheet && @cheatsheet.hasClass('shown')
+      @cheatsheet.toggleClass('shown')
       @toggleCheatsheetVisiblity()
     if @confirmConversionToXml()
       @createXMLEditor(MarkdownEditingDescriptor.markdownToXml(@markdown_editor.getValue()))
@@ -106,7 +106,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
   Function to add/remove CSS for cheatsheet.
   ###
   toggleCheatsheetVisiblity: () =>
-    $(".modal-content").toggleClass('cheatsheet-is-shown')
+    $('.modal-content').toggleClass('cheatsheet-is-shown')
 
   ###
   Stores the current editor and hides the one that is not displayed.

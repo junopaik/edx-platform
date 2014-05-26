@@ -87,8 +87,8 @@ Write a persuasive essay to a newspaper reflecting your views on censorship in l
   ###
   onShowXMLButton: (e) =>
     e.preventDefault();
-    if @cheatsheet != undefined && @cheatsheet.hasClass("shown")
-      @cheatsheet.toggleClass("shown")
+    if @cheatsheet && @cheatsheet.hasClass('shown')
+      @cheatsheet.toggleClass('shown')
       @toggleCheatsheetVisibility()
     if @confirmConversionToXml()
       @createXMLEditor(OpenEndedMarkdownEditingDescriptor.markdownToXml(@markdown_editor.getValue()))
@@ -143,7 +143,7 @@ Write a persuasive essay to a newspaper reflecting your views on censorship in l
   Function to add/remove CSS for cheatsheet.
   ###
   toggleCheatsheetVisibility: () =>
-    $(".modal-content").toggleClass('cheatsheet-is-shown')
+    $('.modal-content').toggleClass('cheatsheet-is-shown')
 
 
   ###
